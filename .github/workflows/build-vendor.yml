@@ -9,28 +9,29 @@ jobs:
         with:
           go-version: 'stable'
       - name: Build Custom Vendor
+        shell: powershell
         run: |
           mkdir shark-admin-go
           cd shark-admin-go
           go mod init shark-admin-go
 
-          # 1. 核心 Web & 数据库 (Gin + GORM + PG)
+          # 1. 核心 Web & 数据库
           go get github.com/gin-gonic/gin
           go get gorm.io/gorm
           go get gorm.io/driver/postgres
 
-          # 2. 鉴权与权限管理 (Casbin + JWT)
+          # 2. 鉴权与权限管理
           go get github.com/casbin/casbin/v3
           go get github.com/casbin/gorm-adapter/v3
           go get github.com/golang-jwt/jwt/v5
 
-          # 3. 配置、命令行与日志 (Viper + Cobra + Zap)
+          # 3. 配置、命令行与日志
           go get github.com/spf13/viper
           go get github.com/spf13/cobra
           go get go.uber.org/zap
           go get gopkg.in/natefinch/lumberjack.v2
 
-          # 4. API 文档与缓存 (Swagger + Redis)
+          # 4. API 文档与缓存
           go get github.com/swaggo/gin-swagger
           go get github.com/swaggo/files
           go get github.com/redis/go-redis/v9
@@ -42,6 +43,6 @@ jobs:
         with:
           name: vendor-custom-deps
           path: |
-            shark-admin-go/vendor
-            shark-admin-go/go.mod
-            shark-admin-go/go.sum
+            D:\a\build-go-tools\build-go-tools\shark-admin-go\vendor\
+            D:\a\build-go-tools\build-go-tools\shark-admin-go\go.mod
+            D:\a\build-go-tools\build-go-tools\shark-admin-go\go.sum
