@@ -5,12 +5,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: 'stable'
       - name: Build Tools
         run: |
-          go env -w GOPROXY=https://goproxy.cn,direct
           go install golang.org/x/tools/gopls@latest
           go install github.com/haya14busa/goplay/cmd/goplay@latest
           go install github.com/josharian/impl@latest
@@ -18,4 +17,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: go-binaries-windows
-          path: ~\go\bin\*.exe
+          path: C:\Users\runneradmin\go\bin\*.exe
