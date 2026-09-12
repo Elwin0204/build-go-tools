@@ -8,41 +8,61 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-      - name: Build Custom Vendor
+      - name: Generate Vendor Package
         shell: powershell
         run: |
-          mkdir shark-admin-go
-          cd shark-admin-go
+          New-Item -ItemType Directory -Force -Path shark-admin-go
+          Set-Location shark-admin-go
+          
           go mod init shark-admin-go
 
-          # 1. 核心 Web & 数据库
+          # 1. 下载依赖
           go get github.com/gin-gonic/gin
           go get gorm.io/gorm
           go get gorm.io/driver/postgres
-
-          # 2. 鉴权与权限管理
           go get github.com/casbin/casbin/v3
           go get github.com/casbin/gorm-adapter/v3
           go get github.com/golang-jwt/jwt/v5
-
-          # 3. 配置、命令行与日志
           go get github.com/spf13/viper
           go get github.com/spf13/cobra
           go get go.uber.org/zap
           go get gopkg.in/natefinch/lumberjack.v2
-
-          # 4. API 文档与缓存
           go get github.com/swaggo/gin-swagger
           go get github.com/swaggo/files
           go get github.com/redis/go-redis/v9
 
+          # 2. 创建临时 main.go 显式引用所有包（防止被 go mod tidy 误删）
+          @'
+          package main
+
+          import (
+            _ "github.com/casbin/casbin/v3"
+            _ "github.com/casbin/gorm-adapter/v3"
+            _ "github.com/gin-gonic/gin"
+            _ "github.com/golang-jwt/jwt/v5"
+            _ "github.com/redis/go-redis/v9"
+            _ "github.com/spf13/cobra"
+            _ "github.com/spf13/viper"
+            _ "github.com/swaggo/files"
+            _ "github.com/swaggo/gin-swagger"
+            _ "go.uber.org/zap"
+            _ "gopkg.in/natefinch/lumberjack.v2"
+            _ "gorm.io/driver/postgres"
+            _ "gorm.io/gorm"
+          )
+
+          func main() {}
+          '@ | Out-File -FilePath main.go -Encoding utf8
+
+          # 3. 整理并生成 vendor 目录
           go mod tidy
           go mod vendor
+
       - name: Upload Vendor Artifact
         uses: actions/upload-artifact@v4
         with:
           name: vendor-custom-deps
           path: |
-            D:\a\build-go-tools\build-go-tools\shark-admin-go\vendor\
-            D:\a\build-go-tools\build-go-tools\shark-admin-go\go.mod
-            D:\a\build-go-tools\build-go-tools\shark-admin-go\go.sum
+            shark-admin-go/vendor
+            shark-admin-go/go.mod
+            shark-admin-go/go.sum
